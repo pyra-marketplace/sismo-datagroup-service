@@ -86,6 +86,10 @@ func (entity *metaEntity) CreateOne(metaForm form.MetaForm) (*model.DataGroupMat
 
 	metaForm.Handler = handler.GetHandlerName(metaForm.Handler)
 
+	if metaForm.Handler == handler.TwitterFollowerHandlerName && metaForm.TwitterConfig.Followers == 0 {
+		return nil, response.NewError(http.StatusBadRequest, 50000, "FollowersNotSet")
+	}
+
 	groupMeta := model.DataGroupMate{
 		Id:                primitive.NewObjectID(),
 		GroupName:         metaForm.Name,

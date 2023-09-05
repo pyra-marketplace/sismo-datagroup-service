@@ -148,8 +148,8 @@ func (entity *recordEntity) CreateOne(recordForm form.RecordForm, groupMeta *mod
 	// validate and return account
 	account, err := recordHandler(recordForm, groupMeta)
 	if err != nil {
-		logrus.Print("InvalidRecord")
-		return nil, response.ErrorBadRequest(500000, "InvalidRecord")
+		logrus.Print(err.Error())
+		return nil, response.ErrorBadRequest(500000, err.Error())
 	}
 	if account == "" {
 		logrus.Print("EmptyAccount")

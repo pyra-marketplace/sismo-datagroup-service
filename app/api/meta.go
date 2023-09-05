@@ -41,11 +41,6 @@ func createGroupMeta(metaEntity repository.IMeta) func(ctx *gin.Context) {
 			return
 		}
 
-		if metaReq.TwitterConfig.Followers == 0 {
-			response.WithError(ctx, response.ErrorBadRequest(500000, "FollowersNotSet"))
-			return
-		}
-
 		meta, err := metaEntity.CreateOne(metaReq)
 		if err != nil {
 			response.WithError(ctx, err)
