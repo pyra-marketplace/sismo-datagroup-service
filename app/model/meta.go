@@ -15,4 +15,9 @@ type DataGroupMate struct {
 	UpdatedAt         time.Time          `bson:"updated_at,omitempty"`
 	GenerateFrequency string             `bson:"generate_frequency,omitempty"`
 	Handler           string             `bson:"handler,omitempty"`
+	TwitterConfig     TwitterConfig      `json:"config"`
+}
+
+type TwitterConfig struct {
+	Followers int `json:"followers"`
 }

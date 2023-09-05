@@ -47,7 +47,7 @@ func addRecord(recordEntity repository.IRecord) func(ctx *gin.Context) {
 		}
 
 		hd := handler.HandlerMap[groupMeta.Handler]
-		record, err := recordEntity.CreateOne(recordReq, hd.ValidateRecord)
+		record, err := recordEntity.CreateOne(recordReq, groupMeta, hd.ValidateRecord)
 		if err != nil {
 			response.WithError(ctx, err)
 			return

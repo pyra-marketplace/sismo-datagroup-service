@@ -27,6 +27,7 @@ func (app Routes) StartGin() {
 	r.Use(gin.Logger())
 	r.Use(middlewares.NewRecovery())
 	r.Use(middlewares.NewCors([]string{"*"}))
+	r.Use(middlewares.NewRateLimiter())
 	r.GET("swagger/*any", middlewares.NewSwagger())
 
 	handler.InitHandler()

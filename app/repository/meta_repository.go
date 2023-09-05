@@ -95,6 +95,7 @@ func (entity *metaEntity) CreateOne(metaForm form.MetaForm) (*model.DataGroupMat
 		UpdatedAt:         time.Now(),
 		GenerateFrequency: metaForm.GenerateFrequency,
 		Handler:           metaForm.Handler,
+		TwitterConfig:     metaForm.TwitterConfig,
 	}
 
 	found, _ := entity.GetOneByGroupName(groupMeta.GroupName)

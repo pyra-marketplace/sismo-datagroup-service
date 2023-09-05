@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sismo-datagroup-service/app/form"
+	"sismo-datagroup-service/app/model"
 )
 
 type Users struct {
@@ -56,8 +57,8 @@ var TwitterFollowerHandlerName = "TwitterFollower"
 
 type TwitterFollowerHandler struct{}
 
-func (*TwitterFollowerHandler) ValidateRecord(record form.RecordForm) (string, error) {
-	account, err := processRecord(record)
+func (*TwitterFollowerHandler) ValidateRecord(record form.RecordForm, groupMeta *model.DataGroupMate) (string, error) {
+	account, err := processRecord(record, groupMeta)
 	if err != nil {
 		return "", err
 	}
@@ -69,7 +70,7 @@ func (*TwitterFollowerHandler) HandlerName() string {
 	return TwitterFollowerHandlerName
 }
 
-func processRecord(record form.RecordForm) (string, error) {
+func processRecord(record form.RecordForm, groupMeta *model.DataGroupMate) (string, error) {
 	//url := "https://api.twitter.com/2/users/by?usernames=randomprime&user.fields=public_metrics"
 	url := fmt.Sprintf("https://api.twitter.com/2/users/by?usernames=%s&user.fields=public_metrics", record.Account)
 	req, err := http.NewRequest("GET", url, nil)
@@ -79,15 +80,12 @@ func processRecord(record form.RecordForm) (string, error) {
 		return "", err
 	}
 
-	if record.AccessToken == "" {
+	if record.TwitterAccessToken == "" {
 		return "", errors.New("EmptyAccessToken")
 	}
 
-	authorization := fmt.Sprintf("Bearer %s", record.AccessToken)
-	fmt.Println("authorization:", authorization)
-
+	authorization := fmt.Sprintf("Bearer %s", record.TwitterAccessToken)
 	req.Header.Add("Authorization", authorization)
-	//req.Header.Add("Users-Agent", "Apifox/1.0.0 (https://www.apifox.cn)")
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -101,20 +99,17 @@ func processRecord(record form.RecordForm) (string, error) {
 		fmt.Println(err)
 		return "", errors.New("ReadResponseBodyError")
 	}
-
-	fmt.Println("body", string(body))
-
 	user, err := parseUserInfo(string(body))
 	if err != nil {
-		return "", errors.New("ParseUserInfoError")
+		return "", errors.New("ParseTwitterUserInfoError")
 	}
 
 	var account string
 	if len(user.Data) == 0 {
-		return "", errors.New("ParseUserInfoError")
+		return "", errors.New("TwitterUserDataNoExist")
 	}
 
-	if user.Data[0].PublicMetrics.FollowersCount > 2 {
+	if user.Data[0].PublicMetrics.FollowersCount > groupMeta.TwitterConfig.Followers {
 		account = fmt.Sprintf("twitter:%s", user.Data[0].Username)
 		return account, nil
 	} else {

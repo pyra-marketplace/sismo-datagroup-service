@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"sismo-datagroup-service/app/cache"
 	"sismo-datagroup-service/app/form"
+	"sismo-datagroup-service/app/handler"
 	"sismo-datagroup-service/app/model"
 	"sismo-datagroup-service/app/response"
 	"sismo-datagroup-service/db"
@@ -25,7 +26,7 @@ type (
 	IRecord interface {
 		GetAll(groupName string) ([]model.DataGroupRecord, response.Error)
 		GetOneByAccount(recordForm form.RecordForm) (*model.DataGroupRecord, response.Error)
-		CreateOne(recordForm form.RecordForm, recordHandler func(recordForm form.RecordForm) (string, error)) (*model.DataGroupRecord, response.Error)
+		CreateOne(recordForm form.RecordForm, groupMeta *model.DataGroupMate, recordHandler handler.HandlerFunc) (*model.DataGroupRecord, response.Error)
 		GetDataGroupList(groupName string) (map[string]string, response.Error)
 		IsDataGroupExist(groupName string) (*model.DataGroupMate, bool)
 		InsertRecords(records []model.DataGroupRecord, groupName string) response.Error
@@ -143,9 +144,9 @@ func (entity *recordEntity) GetOneByAccount(recordForm form.RecordForm) (*model.
 	return record, nil
 }
 
-func (entity *recordEntity) CreateOne(recordForm form.RecordForm, recordHandler func(recordForm form.RecordForm) (string, error)) (*model.DataGroupRecord, response.Error) {
+func (entity *recordEntity) CreateOne(recordForm form.RecordForm, groupMeta *model.DataGroupMate, recordHandler handler.HandlerFunc) (*model.DataGroupRecord, response.Error) {
 	// validate and return account
-	account, err := recordHandler(recordForm)
+	account, err := recordHandler(recordForm, groupMeta)
 	if err != nil {
 		logrus.Print("InvalidRecord")
 		return nil, response.ErrorBadRequest(500000, "InvalidRecord")
